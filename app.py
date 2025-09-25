@@ -5,12 +5,13 @@ import gradio as gr
 
 @gr.mcp.tool()
 def coder_agent(project_name: str, task_description: str, private: bool=False):
-    """Coder Agent, used as a tool for any coding tasks, it creates project, tests it and saves to GitHub.
+    """
+    Coder Agent, used as a tool for any coding tasks, it creates project, tests it and saves to GitHub.
 
-    :param project_name: The name of the GitHub repository and directory for the project.
-    :param task_description: A detailed description of the project for the coder to create.
-    :param private: Whether or not the repository is private.
-    :return:
+    Args:
+        project_name (str): The name of the GitHub repository and directory for the project.
+        task_description (str): A detailed description of the project for the coder to create.
+        private (bool, optional): Whether the coder should be private or public. Defaults to False.
     """
     Thread(target=agent.invoke, args=[{'messages': [HumanMessage(content=task_description)], 'project_name': project_name, 'private': private},]).start()
     return "Coder agent in progress — results will be posted to GitHub once complete."
