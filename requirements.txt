@@ -5,6 +5,5 @@ openai
 langchain-core
 langchain-groq
 langchain-tavily
-mcp
 gradio[mcp]
 PyGithub>=2.7.0

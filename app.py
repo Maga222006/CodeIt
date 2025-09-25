@@ -1,12 +1,9 @@
 from agents.coder_agent import coder_agent as agent
 from langchain_core.messages import HumanMessage
-from mcp.server.fastmcp import FastMCP
 from threading import Thread
 import gradio as gr
 
-mcp = FastMCP("CodeIt")
-
-@mcp.tool()
+@gr.mcp.tool()
 def coder_agent(project_name: str, task_description: str, private: bool=False):
     """Coder Agent, used as a tool for any coding tasks, it creates project, tests it and saves to GitHub.
 
