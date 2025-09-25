@@ -15,10 +15,10 @@ It can **create projects, generate code, and save results directly to GitHub** â
 ---
 
 ## ðŸ¤– The agent will:
-1. Create a new project in `projects/`.
-2. Generate the code files.
-3. Run tests or commands if required.
-4. Commit & push the project to GitHub.
+1. Research the package documentation for the project.
+2. Create a new GitHub repository and project in `projects/`.
+3. Generate the code files.
+4. Run tests and critically review the code.
 
 ---
 
