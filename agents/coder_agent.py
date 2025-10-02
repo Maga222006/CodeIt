@@ -1,41 +1,39 @@
-from agents.prompts import coder_instructions, researcher_instructions, coder_system_message
-from langchain_core.messages import SystemMessage
+from langchain_core.messages import HumanMessage, SystemMessage
+from agents.prompts import prompt, system_message
 from langgraph.prebuilt import create_react_agent
-from agents.tools import coder_tools, web_search
-from langgraph.constants import START, END
+from agents.utils import initialize_project
 from agents.states import CoderState
-from langgraph.graph import StateGraph
+from langchain.tools import tool
+from dotenv import load_dotenv
 from agents.models import llm
+from agents import tools
+import shutil
+import os
 
+load_dotenv()
 
-research_agent = create_react_agent(
+agent = create_react_agent(
     llm,
-    tools=[web_search],
-    prompt=researcher_instructions,
+    tools=tools.tools,
+    prompt=prompt,
     state_schema=CoderState,
 )
 
-code_agent = create_react_agent(
-    llm,
-    tools=coder_tools,
-    prompt=coder_instructions,
-    state_schema=CoderState,
-)
+@tool
+def coder_agent(project_name: str, task_description: str, repo_owner: str = None, branch: str = "main", private: bool = False):
+    """
+    Coder Agent, used as a tool for any coding tasks, it creates a new project or downloads repo from GitHub to further adjust it, tests it and saves to GitHub.
 
-def research_agent_node(state: dict):
-    state['messages'].append(research_agent.invoke(state)['messages'][-1])
-    return state
-
-def code_agent_node(state: dict):
-    state['messages'].append(SystemMessage(coder_system_message(state=state)))
-    state = code_agent.invoke(state)
-    return state
-
-graph = StateGraph(dict)
-graph.add_node("research_agent_node", research_agent_node)
-graph.add_node("code_agent_node", code_agent_node)
-graph.add_edge(START, "research_agent_node")
-graph.add_edge("research_agent_node", "code_agent_node")
-graph.add_edge("code_agent_node", END)
-
-coder_agent = graph.compile(name="coder_agent")
+    Args:
+        project_name (str): The name of the GitHub repository and directory for the project.
+        repo_owner (str): The owner of the GitHub repository, used only if we want to download the existing repo, not create a new project from scratch. Defaults to None (user's GitHub account)
+        branch (str): The branch of the GitHub repository. Defaults to "main".
+        task_description (str): A detailed description of the project for the coder to create or adjust.
+        private (bool, optional): Whether the coder should be private or public. Defaults to False.
+    """
+    initialize_project(project_name=project_name, repo_owner=repo_owner, branch=branch, private=private)
+    path = f"agents/coder/projects/{project_name}"
+    messages = agent.invoke({'messages': [SystemMessage(system_message(project_name, private)), HumanMessage(content=task_description)], 'project_name': project_name, 'private': private})
+    if os.path.isdir(path):
+        shutil.rmtree(path, ignore_errors=True)
+    return messages['messages'][-1].content

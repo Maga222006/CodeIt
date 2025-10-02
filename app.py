@@ -13,8 +13,8 @@ def coder_agent(project_name: str, task_description: str, private: bool=False):
         task_description (str): A detailed description of the project for the coder to create.
         private (bool, optional): Whether the coder should be private or public. Defaults to False.
     """
-    Thread(target=agent.invoke, args=[{'messages': [HumanMessage(content=task_description)], 'project_name': project_name, 'private': private},]).start()
-    return "Coder agent in progress — results will be posted to GitHub once complete."
+    messages = agent.invoke({"project_name": project_name, "task_description": task_description, "private": private})
+    return messages[-1].content
 
 demo = gr.Interface(
     fn=coder_agent,

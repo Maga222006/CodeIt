@@ -4,6 +4,6 @@ from dotenv import load_dotenv
 load_dotenv()
 
 llm = init_chat_model(
-    model="groq:qwen/qwen3-32b",
+    model="groq:moonshotai/kimi-k2-instruct-0905",
     max_tokens=4000
 )
